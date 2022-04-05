@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+	<header>
+		<div class="right" id="loader"></div>
+		<div id="header">
+		  <div class="left">
+			<!--	<div id="myProgress">
+				<div id="myBar"></div>
+				</div>-->
+			  <a href = "https://www.plowmanbrothers.com/plowman-livestock/">
+				  <img src="{{ url_for('static', filename='img/livestocklogo.svg') }}" alt="Plowman Livestock Logo" >	 
+				  <!--<img id="logo" src="/Users/tom_p/Desktop/FlaskApp/static/img/livestocklogo.svg" alt="Plowman Livestock Logo" >-->
+				  </a>		  
+		  </div>          
+			<div class="centeredheader">						
+				<div id = "buttons">
+					<div class="dropdown">
+					  <button class="dropbtn">Maps</button>
+						<div class="dropdown-content"><a href="{{ url_for('mapmain')}}">Main Map</a><a href="{{ url_for('map001')}}">Map #1</a><a href="{{ url_for('map002')}}">Map #2</a><a href="{{ url_for('map003')}}">Map #3</a><a href="map004">Map #4</a></div>
+					</div>
+					<div class="dropdown">
+					  <button class="dropbtn">Other</button>
+						<div class="dropdown-content"><a href="{{ url_for('login')}}">Login</a><a href="{{ url_for('logout')}}">Logout</a><a href="/">Home</a>
+						<a href="{{ url_for('post')}}">Data Logging</a></div> 
+					</div>
+					<div class="dropdown">
+					  <button class="dropbtn">Data</button>
+						<div class="dropdown-content"><a href="{{ url_for('setrange')}}">Set Range</a><a href="{{ url_for('postmap')}}">Generated Map</a><a href="{{ url_for('generatemap')}}">Manually</a></div>
+					</div>
+				 </div>
+			</div>
+<h6>This is from the include_head file.</h6>
+		</div>
+	</header>
+</html>

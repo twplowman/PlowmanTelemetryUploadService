@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+	
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/extra.css') }}">
+	
+<header>
+	{% block head %}
+		<div class="right" id="loader"></div>
+		<div id="header">
+			<div class="left">
+				<!--	<div id="myProgress">
+					<div id="myBar"></div>
+					</div>-->
+				<a href = "https://www.plowmanbrothers.com/plowman-livestock/">
+					<img src="{{ url_for('static', filename='img/livestocklogo.svg') }}" alt="Plowman Livestock Logo" height = "100px" width = "auto">	 
+					<!--<img id="logo" src="/Users/tom_p/Desktop/FlaskApp/static/img/livestocklogo.svg" alt="Plowman Livestock Logo" >-->
+					</a>		  
+			</div>          
+			<div class="centeredheader">						
+				<div id = "buttons">
+					<div class="dropdown">
+						<button class="dropbtn">My Account</button>
+						<div class="dropdown-content">	
+							<a href="{{ url_for('login')}}">Login</a>
+							<a href="{{ url_for('logout')}}">Logout</a>
+							<a href="{{ url_for('BoxRedirect')}}">Live Tracking</a> 
+						</div>
+					</div>
+					<div class="dropdown">
+						<button class="dropbtn">Developer</button>
+						<div class="dropdown-content">
+							
+							<a href="{{ url_for('sqlTPlowman')}}">SQL RAW</a>
+							<a href="{{ url_for('formtest')}}">Choose Box</a>	
+						</div> 
+					</div>
+					</div>
+			</div>
+		{% endblock %}	
+		</div>
+	</header>
+	
+	<body onload="myFunction()" style="font-family:Verdana;color:#aaaaaa;margin:0;" class = "content">
+	{%block content %}
+		<h1> this is the body</h1>
+		{% endblock %}
+	</body>
+	
+		
+<script> 
+	
+	var myVar;
+	var delay = "{{delay}}"
+
+	function myFunction() 
+	{
+		var lastPacket = String("{{lastPacket}}");
+		var lastPacketDistance = "{{lastPacketDistance}}"
+
+		var pingID = document.getElementById("ping");
+		var livestockBoxStatusID = document.getElementById("livestockBoxStatus")
+		var onlineID = document.getElementById("online");
+
+		if (lastPacket.includes("ONLINE"))
+		{
+			if (onlineID != null)
+			{
+				onlineID.style.background = "#00B138";
+			}
+			if (pingID != null)
+			{
+			pingID.style.background = "#00B138";
+			pingID.innerHTML = 'Online';
+			}
+			if (lastPacketDistance > 1)
+			{
+			livestockBoxStatus.innerHTML = 'Driving';
+			livestockBoxStatusID.style.background = "#00B138";
+			}
+		}
+		else
+			if (pingID != null)
+			{
+			pingID.style.background = "#8c8c8c";
+			pingID.innerHTML = 'Offline';
+			}
+
+		//loader stuff
+		if (delay == "True")
+		{
+			//move()
+			myVar = setTimeout(showPage, 3000);
+		}
+		else
+		{
+			showPage()
+		}
+	}
+	
+	function showPage() 
+	{
+		  document.getElementById("loader").style.display = "none";
+  		  mainbody.style.display = "block";
+	}
+
+
+	window.addEventListener(
+  "scroll",
+  () => {
+    document.body.style.setProperty(
+      "--scroll",
+      window.pageYOffset / (document.body.offsetHeight - window.innerHeight)
+    );
+  },
+  false
+);
+
+
+
+</script>
+	
+	
+	
+</html>

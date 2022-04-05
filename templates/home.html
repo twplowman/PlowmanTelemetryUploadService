@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+{% extends "base.html" %}
+
+<html>
+	
+{%block content %}
+	
+<div id="myModal" class="modal">
+			  <span id="close" class="close">&times;</span>
+			  <iframe class="modal-content" id="Img01" src="{{ url_for('static', filename='maps/'+ mapHTML + '.html' )}}" alt="Map 002"></iframe>
+			  <div id="caption">{{ url_for('static', filename='maps/'+ mapHTML + '.html' )}}</div>
+		  </div>
+
+<div id="myModal2" class="modal">
+	  <span id="close2" class="close">&times;</span>
+	  <iframe class="modal-content" id="Img02" src="{{ url_for('static', filename='maps/temperature.png') }}" alt="Map 002"></iframe>
+	  <div id="caption2">{{ url_for('static', filename='maps/'+ mapHTML + '.html' )}}</div>
+  </div>	
+	
+	
+<div class="centeredbody" style="display:none;" id="myDiv">
+	<h6> Last Updated = {{lastUpdated}} </h6>
+	<div class="circle" id="online"></div><span> Last Packet = {{lastPacket}}</span>  
+	<h6> username = {{username}}</h6>
+	<hr>
+	<img id="myImg" src="{{ url_for('static', filename='maps/_map_002.png' )}}" style="height:300px" alt="Map 002">
+	<!--<iframe id="myImg" src="{{ url_for('static', filename='maps/'+ mapHTML + '.html' )}}" alt="A Map"></iframe>-->
+	<hr>
+	<p id="demo"></p>
+	<hr>
+	<img id="myImg2" src="{{ url_for('static', filename='maps/temperature.png') }}" alt=""/>
+	<img src="{{ url_for('static', filename='img/livestocklogo.svg') }}" alt="Plowman Livestock Logo" >
+</div>
+	
+	
+<script>
+	var	maplink = "{{ url_for('static', filename='maps/'+ mapHTML )}}";	
+		document.getElementById("demo").innerHTML = maplink;	
+		// Get the modal
+		var modal = document.getElementById('myModal');
+		var modal2 = document.getElementById('myModal2');
+		// Get the image and insert it inside the modal - use its "alt" text as a caption
+		var img = document.getElementById('myImg');
+		var img2 = document.getElementById('myImg2');
+		var modalImg = document.getElementById("Img01");
+		var modalImg2 = document.getElementById("Img02");
+		var captionText = document.getElementById("myImg");
+		var mainbody = document.getElementById("myDiv");
+		// modal stuff
+		img.onclick = function()
+		{
+		  mainbody.style.display = "none";
+		  modal.style.display = "block";
+		  captionText.innerHTML = this.alt;
+		  var iframe = document.getElementById('Img01');
+		  iframe.src = iframe.src;
+		}
+
+		img2.onclick = function()
+		{
+		  mainbody.style.display = "none";
+		  modal2.style.display = "block";
+		  captionText.innerHTML = this.alt;
+		  var iframe = document.getElementById('Img02');
+		  iframe.src = iframe.src;
+		}
+
+	// Get the <span> element that closes the modal
+	var span = document.getElementById("close");
+		var span2 = document.getElementById("close2");
+
+	// When the user clicks on <span> (x), close the modal
+	span.onclick = function() {
+	  modal.style.display = "none";
+	  mainbody.style.display = "block";
+	}
+
+	span2.onclick = function() {
+	  modal2.style.display = "none";
+	  mainbody.style.display = "block";
+	}
+</script>		
+
+{% endblock %}
+
+
+</html>

@@ -1,0 +1,188 @@
+<!doctype html>
+{% extends "base.html" %}
+<html>
+	{%block content %}
+
+		<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+		
+		
+
+
+		<div class = "centeredbody">
+
+			<form class="form-inline" name = "SQLTable" method = "post">
+				Box Number :<select id = "tableName" name = "tableName">
+								<option value="mysql_test.PBL_Telemetry_TPlowman"> JMW Farms		</option>
+								<option value="mysql_test.PBL_Telemetry_0_5_3"> TPlowman 		</option>
+								<option value="mysql_test.PBL_Telemetry_JFletcher"> JFletcher		</option>
+								<option value="mysql_test.PBL_Telemetry_OLD"> OLD		</option>
+							</select>
+
+			<label for="datetime">Select Time Start: 	</label>
+			<input type="date" name="datetime" id="datetime" min="2021-09-01" >	
+			
+			<form class="form-inline" name = "TimeRangeTable" method = "post">
+				Range :<select id = "searchRangeForm" name = "searchRangeForm">
+								<option value=1> 1 Day 		</option>
+								<option value=2> 1 Week		</option>
+							</select>
+
+
+			<input type="submit" value="submit">
+
+			</form>
+
+			<button class="form-inline" onclick="showHideTooltips()">Toggle ToolTips</button>
+			
+			
+				<div class = "map" >
+					<div class = "maptooltips blip" id = "blip"> </div>
+					<iframe  id="Img01" src="{{ url_for('static', filename='maps/'+ mapHTML + '.html' )}}" alt="Map 002"></iframe>
+					
+				</div>
+			
+			<div class="temperatureContainer">
+				<div class = "temperaturemap"> <img  src="{{ url_for('static', filename='maps/'+ mapHTML + '.png' )}}" alt=""/> </div>
+				<div class = "maptooltips box" id="object"> </div>
+				<div class = "maptooltips line" id="line" > 
+				<p class= "cText" id="demo"></p> 
+					  
+		
+				
+		
+			</div>
+
+			<div class = "map">
+				<h6> Viewing : {{minRange}} - {{maxRange}} </h6>
+			</div>
+
+
+		</div>
+
+		<div id="square" class="square"> 
+			<h6 class= "cText" id="demo"></h6> 
+		  </div>
+
+
+		
+		<script>
+			window.addEventListener('load', () => 
+			{
+				document.getElementById('datetime').value = new Date().toISOString().substring(0, 10);
+
+			});
+		
+			var toggle = false;
+			const root = document.documentElement  //Need this line 
+			var mouseX = 0, mouseY = 0, xp = 0, yp = 0; //set X and Y as 0
+			var xLeft, xRight, xTop, xWidth; //Define bounds of box to get
+			getBoxBounds();
+			showHideTooltips();
+
+			// HTML related Classes/IDs for each item on page.
+			var hoverArea = "object";
+			var hoverAreaCursor = "line";
+			var leafletMapBlip = "blip";
+			var hoverAreaCursorText = "demo";
+			var hoverAreaClass = '.box';
+			var leafletMapClass = "leaflet-clickable";
+			
+
+			// On mouse enter or leaving the hover area, do these functions. 
+			document.getElementById(hoverArea).onmouseenter = function() {mouseOver()};
+			document.getElementById(hoverArea).onmouseleave = function() {mouseOut()};
+			//document.getElementById("tooltipButton").onclick = function() {showHideTooltips()};
+
+			function showHideTooltips()
+			{
+				
+				const x = document.getElementsByClassName("maptooltips");
+				if (toggle == false) {
+					for (var y = 0; y<x.length; y++)
+					{
+						x[y].style.visibility = "hidden";
+					toggle = true;
+					}
+				} else {
+					for (var y = 0; y<x.length; y++)
+					{
+						x[y].style.visibility = "visible";
+					toggle = false;
+					}
+				}
+			}
+
+			//get the path from leaflet. 
+			//document.getElementById("Img01").contentWindow.document.body.getElementById("innerIframeElement").setAttribute("style", "background:'#f00';");
+			function getLeafletPath()
+			{
+				var navFrame = window.parent.frames[0];
+				var navFrameClass = navFrame.document.getElementsByClassName("leaflet-clickable")[0];
+				const path = navFrameClass.getAttribute("d");
+				document.getElementById(leafletMapBlip).setAttribute("style", "offset-path: path('" + path + "')");
+				console.log(path);
+			}
+
+			// Change styling to show cursors when hovering over graph. 
+			function mouseOver() 
+			{
+			
+				getBoxBounds(); //Get bounds of hover area in case window has been resized
+				//Set cursor height to fit within hover area bounds
+				var cursorHeight = getComputedStyle(document.getElementById(hoverArea));
+				var cursorHeightValue = cursorHeight.getPropertyValue("height");
+				document.getElementById(hoverAreaCursor).style.height = cursorHeightValue;
+				
+				document.getElementById(hoverAreaCursor).style.visibility = "visible";
+				document.getElementById(leafletMapBlip).style.visibility = "visible";
+				document.getElementById(hoverArea).style.cursor = "none";
+				getLeafletPath();
+			}
+
+			// Change styling to show cursors when leaving graph. 
+			function mouseOut() 
+			{
+			document.getElementById(hoverAreaCursor).style.visibility = "hidden";
+			document.getElementById(leafletMapBlip).style.visibility = "hidden";
+			}
+
+			function getBoxBounds()
+			{
+			let element = document.querySelector('.box');
+			rect = element.getBoundingClientRect();
+			console.log(rect.top, rect.right, rect.bottom, rect.left);
+			xLeft = rect.left;
+			xRight = rect.right;
+			xTop = rect.top;
+			xWidth = xRight - xLeft;
+			}
+
+			//listen to mouse moving and do stuff if mouse moves. only actually visible on mouseenter. 
+			document.addEventListener('mousemove', evt => 
+			{
+			mouseX = evt.clientX ; 
+			mouseY = evt.clientY ; 
+			var coords = "X coords: " + mouseX + ", Y coords: " + mouseY;
+			xp += ((mouseX - xp)/6); 
+			yp += ((mouseY - yp)/6);
+
+			var percentage = ((xp - xLeft)/xWidth)*100;
+
+			document.getElementById(hoverAreaCursorText).innerHTML = coords;
+			document.getElementById(hoverAreaCursor).style.left = xp +'px';
+			document.getElementById(hoverAreaCursor).style.top = xTop + 'px';
+			document.getElementById(leafletMapBlip).style.offsetDistance = percentage + "%";
+			}
+			);	
+
+
+
+  
+
+
+
+		</script>	
+		
+		
+	{%endblock%}
+</html>
