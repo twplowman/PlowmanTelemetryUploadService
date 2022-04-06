@@ -25,11 +25,11 @@ def InsertSQL(value,table):
         #sql = "INSERT INTO `plowmantelemetryschema`.`PBL_Telemetry` (`Box Number`, `DateTime`, `Longitude`, `Latitude`, `Temperature 1`) VALUES ('\'PBL v0.4.2', '2021-10-06 08:03:29', '54.08095', '-1.1727', '13')"
         sql = "INSERT INTO plowmantelemetryschema." + table + " (`Box Number`, `DateTime`, `Latitude`, `Longitude`, `T1`,`T2`,`T3`,`T4`,`T5`,`T6`,`T7`,`T8`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         #examples = ('PBL v0.4.1','2021-10-06 08:03:29','54.08095','-1.1727','-127.000')
-        print(value)
+        #print(value)
         value = value.lstrip('\"')
         value = value.rstrip('\"')
         value = eval(value)
-        print(value)    
+        #print(value)    
         mycursor.execute(sql,value)
         mydb.commit()
 
@@ -51,14 +51,14 @@ def SelectSQL(table):
 
 @app.route('/')
 def index():
-    return "Hello"
+    return "This Webserver is purely for posting data to the server."
 
 
 
 #Endpoint for JMW Farms Box #001    
 @app.route('/post/tplowman',methods=['GET','POST'])
 def sqlTPlowman():
-    table = "PBL_Telemetry_TPlowman"
+    table = "PBL_Telemetry_JMW"
     if request.method == 'POST':
         input_json = request.get_json(force=True)
         #print('data:',input_json)
@@ -72,7 +72,7 @@ def sqlTPlowman():
         return jsonify(values)    
 
 #Endpoint for Redpath Box #001    
-@app.route('/test/<string:boxNumber>',methods=['GET','POST'])
+@app.route('/post/<string:boxNumber>',methods=['GET','POST'])
 def sqlRedpath(boxNumber):
     table = "PBL_Telemetry_" + boxNumber  #table name 
     if request.method == 'POST':
@@ -94,7 +94,7 @@ app.debug = True
 
 
 if __name__ == "__main__":
-        app.run(host='0.0.0.0')
+        app.run(host='0.0.0.0', port=8080) #Port 8080 is for Debugging. This must be changed when using nginx service. 
 
 
 
