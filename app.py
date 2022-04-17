@@ -1,7 +1,7 @@
 from distutils.command.config import config
 import re
 import string
-from flask import Flask,jsonify, session, redirect, render_template , url_for, request
+from flask import Flask,jsonify, session, redirect, render_template , url_for, request, send_from_directory
 import mysql.connector
 from datetime import datetime, timedelta
 import os
@@ -51,10 +51,9 @@ def SelectSQL(table):
 
 @app.route('/')
 def index():
-    return "This Webserver is purely for posting data to the server."
-
-
-
+    text = "This service is purely for posting data to the server"
+    return render_template("empty.html",text = text)
+    
 #Endpoint for JMW Farms Box #001    
 @app.route('/post/tplowman',methods=['GET','POST'])
 def sqlTPlowman():
@@ -95,6 +94,8 @@ app.debug = True
 
 if __name__ == "__main__":
         app.run(host='0.0.0.0', port=8080) #Port 8080 is for Debugging. This must be changed when using nginx service. 
+
+
 
 
 
