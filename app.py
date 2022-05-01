@@ -33,6 +33,17 @@ def InsertSQL(value,table):
         mycursor.execute(sql,value)
         mydb.commit()
 
+#trying to post all data to the same table. 
+def InsertSQLModified(value):
+        config = MysqlConfig()
+        mydb = mysql.connector.connect(**config)
+        mycursor = mydb.cursor()
+        sql = "INSERT INTO PBL_Uploaded_Data (`Box Number`, `DateTime`, `Latitude`, `Longitude`, `T1`,`T2`,`T3`,`T4`,`T5`,`T6`,`T7`,`T8`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        value = value.lstrip('\"')
+        value = value.rstrip('\"')
+        value = eval(value)   
+        mycursor.execute(sql,value)
+        mydb.commit()
 
 def SelectSQL(table):
         config = MysqlConfig()
@@ -77,7 +88,8 @@ def sqlRedpath(boxNumber):
     if request.method == 'POST':
         input_json = request.get_json(force=True)
         value = input_json['value']
-        InsertSQL(value,table)
+        #InsertSQL(value,table) # Removed 010522 for modified, see below. 
+        InsertSQLModified(value)
         #Save to sql
         return value
     if request.method == 'GET':
