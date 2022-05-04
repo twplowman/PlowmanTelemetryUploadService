@@ -73,8 +73,8 @@ def sqlTPlowman():
         input_json = request.get_json(force=True)
         #print('data:',input_json)
         value = input_json['value']
-        
-        InsertSQL(value,table)
+        InsertSQLModified(value) #changing route for JMW to Uploaded Data. 
+        #InsertSQL(value,table)
         #Save to sql
         return value
     if request.method == 'GET':
