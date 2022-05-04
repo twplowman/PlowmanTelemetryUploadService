@@ -111,6 +111,9 @@ def LastPacketTime(boxNumber, **kwargs):
 
     return "No Data in db"
 
+def serverTime():
+        serverTime = ConvertToReadableTime(datetime.utcnow())
+        return serverTime
 
 @app.route('/')
 def index():
@@ -118,9 +121,10 @@ def index():
     RedPathSatus = LastPacketTime('PBL004', status = True)
     templateData = {
         "textLine0" : "upload.plowmantelemetry.com",
-        "textLine1" : "The server is running. All times displayed in UCT",
-        "textLine2" : "JMW: " + JMWStatus,
-        "textLine3" : "RedPath: " + RedPathSatus
+        "textLine1" : "The server is running. All times displayed in UCT.",
+        "textLine2" : "The server time is: " + serverTime(),
+        "textLine3" : "JMW: " + JMWStatus,
+        "textLine4" : "RedPath: " + RedPathSatus
     }
     
     return render_template("empty.html",**templateData)
