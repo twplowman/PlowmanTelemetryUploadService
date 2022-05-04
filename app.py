@@ -45,12 +45,12 @@ def InsertSQLModified(value):
         mycursor.execute(sql,value)
         mydb.commit()
 
-def SelectSQL(table):
+def SelectSQL(boxNumber):
         config = MysqlConfig()
         mydb = mysql.connector.connect(**config)
         mycursor = mydb.cursor()
         try:
-            mycursor.execute("SELECT * FROM `plowmantelemetryschema`." + table + " ORDER BY ID DESC;")
+            mycursor.execute("SELECT * FROM PBL_Uploaded_Data WHERE `Box Number` = '" + boxNumber + "' ORDER BY ID DESC LIMIT 100;")
             myresult = mycursor.fetchall()
             data = []
             for x in myresult:
@@ -60,15 +60,75 @@ def SelectSQL(table):
             return "Error - Likely table does not exist"
 
 
+# Converts datetime into more readable format
+# '%Y-%m-%d %H:%M:%S' to '%d/%m/%Y %H:%M:%S'
+# dateTime = date time in format of YYYY-MM-DD HH/MM/SS (e.g. datetime from sql server)
+# returns readableDate
+def ConvertToReadableTime(dateTime):
+    readableDate = datetime.strftime(dateTime, "%d/%m/%Y %H:%M:%S")
+    return readableDate
+
+# compares date (in a datetime format of '%Y-%m-%d %H:%M:%S') against current server time.
+# timeMinutes = integer time in minutes
+# dateTime = time to evaluate (e.g. last packet from sql server)
+# returns true or false based upon defined allowable range in minutes.
+def PacketAge(timeMinutes, dateTime):
+    difference = (datetime.utcnow() - dateTime) - timedelta(minutes=timeMinutes)
+    # print(difference)
+    if difference < timedelta(0):
+        return True
+    else:
+        return False
+
+# Queries SQL database and finds last row for specified box number. Converts to date or checks if online/offline
+# boxNumber = string that is specific to livestock box. e.g. 'PBL v0.4.9' no checks if this is wrong!
+# **kwargs:
+#          - dateformat. if set as true, will return last packet in format of DD/MM/YYYY HH:MM:SS
+#          - status.     if set as true, will return last packet in readable format AND ONLINE/OFFLINE (used on html)
+# returns datetime in format of '%Y-%m-%d %H:%M:%S' as standard.
+def LastPacketTime(boxNumber, **kwargs):
+    config = MysqlConfig()
+    mydb = mysql.connector.connect(**config)
+    cursor = mydb.cursor()  # define cursor
+    query = "SELECT DateTime, Latitude, Longitude FROM PBL_Uploaded_Data WHERE  `Box Number` = %s ORDER BY DateTime DESC LIMIT 1  ;"  # construct query
+    cursor.execute(query, (boxNumber,))
+    for result in cursor:
+        result = list(result)
+        if kwargs.get("dateformat"):  # probably will be unused
+            readableDate = ConvertToReadableTime((result[0]))
+            return readableDate
+        if kwargs.get("status"):  # if we want to check ONLINE/OFFLINE
+            readableDate = ConvertToReadableTime((result[0]))
+            if PacketAge(
+                5, result[0]
+            ):  # Pass in 20 minutes, we can expose and change this later
+                result = readableDate + " || ONLINE "
+            else:
+                result = readableDate + " || OFFLINE "
+            return result
+        else:
+            return result
+
+    return "No Data in db"
+
+
 @app.route('/')
 def index():
-    text = "This service is purely for posting data to the server"
-    return render_template("empty.html",text = text)
+    JMWStatus = LastPacketTime('PBL003', status = True)
+    RedPathSatus = LastPacketTime('PBL004', status = True)
+    templateData = {
+        "textLine0" : "upload.plowmantelemetry.com",
+        "textLine1" : "The server is running. All times displayed in UCT",
+        "textLine2" : "JMW: " + JMWStatus,
+        "textLine3" : "RedPath: " + RedPathSatus
+    }
+    
+    return render_template("empty.html",**templateData)
     
 #Endpoint for JMW Farms Box #001    
 @app.route('/post/tplowman',methods=['GET','POST'])
 def sqlTPlowman():
-    table = "PBL_Telemetry_JMW"
+    table = "PBL003"
     if request.method == 'POST':
         input_json = request.get_json(force=True)
         #print('data:',input_json)
@@ -84,7 +144,7 @@ def sqlTPlowman():
 #Endpoint for Redpath Box #001    
 @app.route('/post/<string:boxNumber>',methods=['GET','POST'])
 def sqlRedpath(boxNumber):
-    table = "PBL_Telemetry_" + boxNumber  #table name 
+    table = boxNumber  #table name 
     if request.method == 'POST':
         input_json = request.get_json(force=True)
         value = input_json['value']
